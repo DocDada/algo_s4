@@ -10,7 +10,7 @@ class Digraph:
 
     def __init__(self, adjacency):
         # adjacency is a dictionary
-        # edge -> list of edges
+        # vertex -> list of vertices
         self.adjacency = adjacency
 
     def getListVertices(self):
@@ -26,37 +26,56 @@ class Digraph:
         """returns number of vertices"""
         return len(self.adjacency)
 
-    def getExitingDegree(self, v):
-        """returns the number of exiting neighbours of a vertice"""
+    def getOutdegree(self, v):
+        """returns the number of exiting neighbours of a vertex"""
         return len(self.adjacency[v])
+
+    def getExitingNeighbours(self, v):
+        return self.adjacency[v]
 
     def getSize(self):
         """returns the number of arcs of a digraph"""
-        return sum([self.getExitingDegree(v) for v in self.adjacency])
+        return sum([self.getOutdegree(v) for v in self.adjacency])
 
     def topological_ordering(self):
         """returns a topological ordering of a graph, supposed to be a dag
-        numerotation = vertice -> int"""
+        numerotation = vertex -> int"""
         counter = self.getOrder() - 1
-        sort = {}
+        toporder = {}
 
         for v in self.adjacency:
-            sort[v] = None
+            toporder[v] = None
 
+        # list of vertices not numbered/sorted
         notNumVertices = self.getListVertices()
 
         while notNumVertices:
-            v = notNumVertices.pop()
-            # seek a sink not numbered
-            neigh_not_numb = [neigh in self.adjacency[v] if sort[neigh] == None]
+            v = notNumVertices[0]
+            # we seek a sink not numbered
+            # while v has an exiting neighbour not numbered
+            neigh_not_numb = [neigh for neigh in self.adjacency[v] if toporder[neigh] == None]
+
             while neigh_not_numb:
                 v = neigh_not_numb[0]
-                neigh_not_numb = [neigh in self.adjacency[v] if sort[neigh] == None]
+                neigh_not_numb = [neigh for neigh in self.adjacency[v] if toporder[neigh] == None]
+            notNumVertices.remove(v)
+            toporder[v] = counter
+            counter -= 1
+        return toporder
 
 
 
-    def verify_topological_ordering(self):
-        """checks if the ordering given is a topological ordering"""
+    def verify_topological_ordering(self, toporder):
+        """checks if the ordering given is a topological ordering
+        if the rank of the exiting neighbour is lower, it is wrong
+        else, true"""
+        for v in self.getListVertices():
+            v_rank = toporder[v]
+            v_neighb = self.adjacency[v]
+            for n in v_neighb:
+                if toporder[n] < v_rank:
+                    return False
+        return True
 
 
 def readGraph(filename):
