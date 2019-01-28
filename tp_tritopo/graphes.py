@@ -20,17 +20,17 @@ class Digraph:
     def pprint(self):
         print "Vertices are :", self.getListVertices()
         for k in self.getListVertices():
-            print "Exiting neighbours of", k, "are", self.adjacency[k]
+            print "Outneighbours of", k, "are", self.adjacency[k]
 
     def getOrder(self):
         """returns number of vertices"""
         return len(self.adjacency)
 
     def getOutdegree(self, v):
-        """returns the number of exiting neighbours of a vertex"""
+        """returns the number of outneighbours of a vertex"""
         return len(self.adjacency[v])
 
-    def getExitingNeighbours(self, v):
+    def getOutNeighbours(self, v):
         return self.adjacency[v]
 
     def getSize(self):
@@ -40,7 +40,7 @@ class Digraph:
     def topological_ordering(self):
         """returns a topological ordering of a graph, supposed to be a dag
         numerotation = vertex -> int"""
-        counter = self.getOrder() - 1
+        counter = self.getOrder()
         toporder = {}
 
         for v in self.adjacency:
@@ -52,7 +52,7 @@ class Digraph:
         while notNumVertices:
             v = notNumVertices[0]
             # we seek a sink not numbered
-            # while v has an exiting neighbour not numbered
+            # while v has an outneighbour not numbered
             neigh_not_numb = [neigh for neigh in self.adjacency[v] if toporder[neigh] == None]
 
             while neigh_not_numb:
@@ -67,13 +67,11 @@ class Digraph:
 
     def verify_topological_ordering(self, toporder):
         """checks if the ordering given is a topological ordering
-        if the rank of the exiting neighbour is lower, it is wrong
+        if the rank of the out neighbour is lower, it is wrong
         else, true"""
         for v in self.getListVertices():
-            v_rank = toporder[v]
-            v_neighb = self.adjacency[v]
-            for n in v_neighb:
-                if toporder[n] < v_rank:
+            for n in self.adjacency[v]:
+                if toporder[n] < toporder[v]:
                     return False
         return True
 
