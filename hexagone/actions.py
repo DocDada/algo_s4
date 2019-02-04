@@ -67,7 +67,31 @@ def parcoursEnLargeur(modele):
     """effectue un parcours en largeur du sommet de depart
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
     l'objectif en rouge"""
-    pass
+    """depart = modele.getDepart()
+    precedent = depart
+    voisins = modele.getVoisins(depart)
+    for v in range(1000):
+        suivant = modele.getVoisins(precedent)[random.randint(0,len(modele.getVoisins(precedent))-1)]
+        modele.addFleche(precedent, suivant, "Blue")
+        precedent = suivant
+    """
+    depart = modele.getDepart()
+    pred = {}
+    distance = {}
+    distance[depart] = 0
+    attente = [depart]
+    while attente:
+        courant = attente.pop(0)
+        for v in modele.getVoisins(courant):
+            if v not in distance:
+                distance[v] = distance[courant] + 1
+                pred[v] = courant
+                attente.append(v)
+                modele.addFleche(courant, v, "Black")
+                modele.addTexte(v, distance[v])
+
+
+
 
 
 def compConnexes(modele):
