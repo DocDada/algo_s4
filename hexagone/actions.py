@@ -63,6 +63,8 @@ import time
 from collections import deque
 
 
+
+
 def parcoursEnLargeur(modele):
     """effectue un parcours en largeur du sommet de depart
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
@@ -83,18 +85,38 @@ def parcoursEnLargeur(modele):
                 modele.addFleche(courant, v, "Black")
                 #modele.addTexte(v, distance[v])
 
+    draw_path_start_end(modele, pred)
+
+
+def draw_path_start_end(modele, pred):
+    v = modele.getObjectif()
+    while v in pred:
+        predecesseur = pred[v]
+        modele.addFleche(predecesseur, v, "Red")
+        if predecesseur == modele.getDepart():
+            break
+        v = predecesseur
 
 def compConnexes(modele):
-    comp = [None * len(modele.getListeSommets(True))]
+    """Affiche pour chaque sommet le numéro de la composante auquelle
+    il appartient"""
+
     num = 0
-    for s in modele.getListeSommets(True):
-        if comp[v] == None:
-            #
-
-            #
-            num += 1
-
-
+    sommets = modele.getListeSommets()
+    comp = {}
+    for s in sommets:
+        if s in comp:
+            continue
+        attente2 = [s]
+        while attente2:
+            v = attente2.pop()
+            for courant in modele.getVoisins(v):
+                if courant in comp:
+                    continue
+                comp[courant] = num
+                attente2.append(courant)
+                modele.addTexte(courant, num)
+        num += 1
 
 
 def parcoursEnProfondeur(modele):
@@ -110,12 +132,16 @@ def parcoursEnProfondeur(modele):
         if s not in connu:
             parcoursEnProfondeurEtape(modele, connu, pred, s)
 
+    draw_path_start_end(modele, pred)
+
 def parcoursEnProfondeurEtape(modele, connu, pred, s):
     connu.add(s)
     voisins = modele.getVoisins(s)
-    random.shuffle(voisins)
+    # On parcourt les voisins de s
     for v in voisins:
+        # Si le sommet n'est pas connu
         if v not in connu:
+            # Le predecesseur de v est s
             pred[v] = s
             modele.addFleche(pred[v], v, "Black")
             parcoursEnProfondeurEtape(modele, connu, pred, v)
