@@ -67,14 +67,7 @@ def parcoursEnLargeur(modele):
     """effectue un parcours en largeur du sommet de depart
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
     l'objectif en rouge"""
-    """depart = modele.getDepart()
-    precedent = depart
-    voisins = modele.getVoisins(depart)
-    for v in range(1000):
-        suivant = modele.getVoisins(precedent)[random.randint(0,len(modele.getVoisins(precedent))-1)]
-        modele.addFleche(precedent, suivant, "Blue")
-        precedent = suivant
-    """
+
     depart = modele.getDepart()
     pred = {}
     distance = {}
@@ -88,14 +81,19 @@ def parcoursEnLargeur(modele):
                 pred[v] = courant
                 attente.append(v)
                 modele.addFleche(courant, v, "Black")
-                modele.addTexte(v, distance[v])
-
-
-
+                #modele.addTexte(v, distance[v])
 
 
 def compConnexes(modele):
-    pass
+    comp = [None * len(modele.getListeSommets(True))]
+    num = 0
+    for s in modele.getListeSommets(True):
+        if comp[v] == None:
+            #
+
+            #
+            num += 1
+
 
 
 
@@ -104,7 +102,23 @@ def parcoursEnProfondeur(modele):
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
     l'objectif en rouge
     Affiche le numero prefixe"""
-    pass
+    depart = modele.getDepart()
+    sommets = modele.getListeSommets(depart)
+    pred = {}
+    connu = set([])
+    for s in sommets:
+        if s not in connu:
+            parcoursEnProfondeurEtape(modele, connu, pred, s)
+
+def parcoursEnProfondeurEtape(modele, connu, pred, s):
+    connu.add(s)
+    voisins = modele.getVoisins(s)
+    random.shuffle(voisins)
+    for v in voisins:
+        if v not in connu:
+            pred[v] = s
+            modele.addFleche(pred[v], v, "Black")
+            parcoursEnProfondeurEtape(modele, connu, pred, v)
 
 def bellmanFord(modele):
     pass
