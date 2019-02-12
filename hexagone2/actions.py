@@ -47,7 +47,30 @@ def parcoursEnLargeur(graphe):
 	
 
 def num_topo_ou_cycle(graphe):
-    pass
+	"""Détection de cycles et tri topologique"""
+	pre= {}
+	suf = {}
+	connus = set([])
+	for s in graphe.getListeSommets():
+		if s not in pre:
+			if pp_etape(graphe, pre, suf, s)
+				pp_etape_cycle(graphe, s
+				
+
+def pp_etape(graphe, pre, suf, s):
+	pre[s] = len(pre)
+	for v in graphe.getVoisinsSortants(s):
+		if v not in pre:
+			pp_etape(graphe, pre, suf, v)
+		elif v not in suf:# cycle
+			return True
+	suf[s] = len(suf)
+	graphe.addTexte(s, str(pre[s]) + "/" + str(suf[s]))
+			
+
+def pp_etape_cycle(graphe, v, s):
+	pass
+
 
 def compConnexes(graphe):
     pass
