@@ -82,19 +82,66 @@ def draw_path_start_end(graphe, pred):
 
 
 
+
+
+# Correction
 def num_topo_ou_cycle(graphe):
+
+    connus = set([])
+    suffixes = {}
+    predecesseurs = {}
+    res = None
+
+    for x in graphe.getListeSommets():
+        if x not in connus:
+            res = numtopo_etape(graphe, x, connus, predecesseurs, suffixes)
+        if res is not None:
+            break
+
+    if res is not None:
+        x, v = res
+        courant = x
+        graphe.change_couleur_arc(x, v, "Red")
+
+        while courant != v:
+            pred = predecesseurs[courant]
+            graphe.change_couleur_arc(pred, courant, "Red")
+            courant = pred
+    else:
+        n = len(graphe.getListeSommets())
+        for x in graphe.getListeSommets():
+            graphe.addTexte(x, n - 1 - suffixes[x])
+
+# Correction
+def numtopo_etape(graphe, x, connus, predecesseurs, suffixes):
+
+    connus.add(x)
+
+    for v in graphe.getVoisinsSortants(x):
+        if v not in connus:
+            predecesseurs[v] = x
+            res = numtopo_etape(graphe, v, connus, predecesseurs, suffixes)
+            if res is not None:
+                return res
+        elif v not in suffixes:
+            return [x, v]
+    suffixes[x] = len(suffixes)
+    return None
+
+
+
+def num_topo_ou_cycle_v2(graphe):
     """Détection de cycles et tri topologique"""
     pre= {}
     suf = {}
     connus = set([])
     couple_vertexes = None
-    #through = True
 
     for s in graphe.getListeSommets():
         if not pre.has_key(s):
             cycle = pp_etape(graphe, pre, suf, s)
             if cycle:
-                print "\nCYCLE : ", cycle
+                #print "\nCYCLE : ", cycle
                 if not couple_vertexes:
                     couple_vertexes = cycle
                 else:
@@ -108,17 +155,18 @@ def num_topo_ou_cycle(graphe):
     #inv_suf = {v: k for k, v in suf.iteritems()}
     inv_pre = dict((v, k) for k, v in pre.iteritems())
     inv_suf = dict((v, k) for k, v in suf.iteritems())
-    print inv_pre, inv_suf
+    #print inv_pre, inv_suf
 
 
     print "-------------------"
 
     if couple_vertexes:
-        print "\n\nCOUPLE_VERTEXES : ", couple_vertexes
+        #print "\n\nCOUPLE_VERTEXES : ", couple_vertexes
         # only draws one cycle
         for vertexes in couple_vertexes:
             print "\nVERTEXES : ", vertexes
-            draw_cycle_v3(graphe, pre[vertexes[0]], suf[vertexes[1]], inv_pre, inv_suf)
+            draw_cycle(graphe, vertexes[0], vertexes[1])
+            #draw_cycle_v3(graphe, pre[vertexes[0]], suf[vertexes[1]], inv_pre, inv_suf)
             print "\nFINI\n"
 
     return
@@ -132,7 +180,7 @@ def pp_etape(graphe, pre, suf, s):
         if not pre.has_key(v):
             has_cycle = pp_etape(graphe, pre, suf, v)
         elif not suf.has_key(v):# cycle/boucle
-            graphe.change_couleur_arc(s, v, "blue")
+            #graphe.change_couleur_arc(s, v, "red")
             if not has_cycle:
                 has_cycle = [[s, v]]
             else:
@@ -214,7 +262,57 @@ def pp_etape_cycle(graphe, s):
 
 
 def compConnexes(graphe):
-    pass
+    """Obtenir numérotation suffixe"""
+    suf = (parcoursEnProfondeur(graphe))[1]
+
+    suf_inv = {}
+    compteur_comp = 0
+    comp = {}
+    n = graphe.getListeSommets()
+
+    """for k, s in suf:
+        suf_inv[k] = n - 1 - s
+    """
+    suf_inv = sorted(suffixes, reverse = True)
+
+    while suf_inv:
+        v = suf_inv.pop()
+        if v not in comp:
+            comp.append(composante(graphe, v, compteur_comp))
+            print "compConnexes : ", comp
+            compteur_comp += 1
+
+    return
+
+def composante(graphe, s, num_comp):
+
+    attente = graphe.getVoisinsSortants(s)
+    comp = {}
+
+    while attente:
+        v = attente.pop(0)
+        graphe.addTexte(v, num_comp)
+        attente.append(graphe.getVoisinsSortants(v))
+        comp.append(v)
+
+    print "composante : ", comp
+    return comp
+
+
+
+
+
+
+"""
+def graphe_inverse(graphe):
+    graphe_inv = {key:None for key in graphe.getListeSommets()}
+
+    for v in graphe.getListeSommets():
+        for s in graphe.getVoisinsSortants(v):
+            graphe_inv[s].append(v)
+
+    return graphe_inv
+"""
 
 def parcoursEnProfondeur(graphe):
     pred = {}
@@ -239,7 +337,7 @@ def parcoursEnProfondeurEtape(graphe, pred, pre, suf, connu, s):
             parcoursEnProfondeurEtape(graphe, pred, pre, suf, connu, v)
 
     suf[s] = len(suf)
-    graphe.addTexte(s, str(pre[s]) +  "/" + str(suf[s]))
+    #graphe.addTexte(s, str(pre[s]) +  "/" + str(suf[s]))
 
 
 
