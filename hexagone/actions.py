@@ -147,12 +147,38 @@ def parcoursEnProfondeurEtape(modele, connu, pred, s):
             parcoursEnProfondeurEtape(modele, connu, pred, v)
 
 def bellmanFord(modele):
-    pass
-    
-def dijkstra(modele): 
+    distances = {v:float("inf") for v in modele.getListeSommets()}
+    distances[modele.getDepart()] = 0
+    pred = {}
+
+    for i in range(len(modele.getListeSommets()) - 1):
+        boolean = False
+        for v1 in modele.getListeSommets():
+            for v2 in modele.getVoisins(v1):
+                res = relacher_arc(modele, distances, pred, v1, v2)
+                if res:
+                    boolean = True
+        if not boolean:
+            break
+
+    draw_path_start_end(modele, pred)
+
+
+def relacher_arc(modele, distances, pred, v1, v2):
+    """Relache l'arc de v1 à v2 et met à jour distances
+    et predecesseur"""
+    if distances[v1] + modele.longueur(v1, v2) < distances[v2]:
+        distances[v2] = distances[v1] + modele.longueur(v1, v2)
+        pred[v2] = v1
+        return True
+    else:
+        return False
+
+
+def dijkstra(modele):
     pass
 
 
-def astar(modele): 
+def astar(modele):
     pass
 
