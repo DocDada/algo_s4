@@ -33,7 +33,7 @@ def distribution_menu_algo(graphe, label):
     if label == "Parcours en largeur":
         parcoursEnLargeur(graphe)
     elif label == "Composantes connexes":
-        compConnexes(graphe)
+        compConnexes_prof(graphe)
     elif label == "Numérotation topologique":
         num_topo_ou_cycle(graphe)
     elif label == "Parcours en profondeur":
@@ -261,8 +261,45 @@ def pp_etape_cycle(graphe, s):
     pass
 
 
+
+
+def compConnexes_prof(graphe):
+    suffixes = (parcoursEnProfondeur(graphe))[1]
+    ordre_sommets = sorted(suffixes, key=lambda x:suffixes[x], reverse = True)
+
+    compteur_composantes = 0
+    composantes = {}
+
+    for v in ordre_sommets:
+        if v not in composantes:
+            #print "Compteur : ", compteur_composantes
+            composantes[compteur_composantes] = sommets_accedant_a(graphe, v, composantes)
+            for s in composantes[compteur_composantes]:
+                #graphe.addTexte(s, compteur_composantes)
+                graphe.change_couleur_hex(s, LISTE_COULEURS[compteur_composantes])
+            compteur_composantes += 1
+
+
+
+
+def sommets_accedant_a(graphe, but, composantes):
+    connus = set([but])
+    attente = [but]
+
+    while attente:
+        courant = attente.pop()
+        for v in graphe.getVoisinsEntrants(courant):
+            if v not in connus and v not in composantes.values():
+                connus.add(v)
+                attente.append(v)
+
+
+    return list(connus)
+
+
 def compConnexes(graphe):
-    """Obtenir numérotation suffixe"""
+    """Obtenir numérotation suffixe
+    comp = sommet : numero de composante"""
     suf = (parcoursEnProfondeur(graphe))[1]
 
     suf_inv = {}
@@ -273,30 +310,42 @@ def compConnexes(graphe):
     """for k, s in suf:
         suf_inv[k] = n - 1 - s
     """
-    suf_inv = sorted(suffixes, reverse = True)
+    suf_inv = sorted(suf, reverse = True)
+    #print suf_inv
 
     while suf_inv:
         v = suf_inv.pop()
         if v not in comp:
-            comp.append(composante(graphe, v, compteur_comp))
-            print "compConnexes : ", comp
+            comp[compteur_comp] = composante(graphe, v, compteur_comp)
+            #print "compConnexes : ", comp
             compteur_comp += 1
 
     return
 
 def composante(graphe, s, num_comp):
 
-    attente = graphe.getVoisinsSortants(s)
-    comp = {}
+    """
+        attente = graphe.getVoisinsSortants(s)
+        while attente:
+            v = attente.pop(0)
 
+            graphe.addTexte(v, num_comp)
+            attente.append(graphe.getVoisinsSortants(v))
+            comp[num_comp] = v
+    """
+
+    attente = [s]
+    connus = set([])
     while attente:
         v = attente.pop(0)
-        graphe.addTexte(v, num_comp)
-        attente.append(graphe.getVoisinsSortants(v))
-        comp.append(v)
+        for so in graphe.getVoisinsEntrants(v):
+            if so not in connus:
+                attente.append(so)
+                connus.add(so)
+                graphe.addTexte(so, num_comp)
 
-    print "composante : ", comp
-    return comp
+    #print "composante : ", comp
+    return list(connus)
 
 
 
