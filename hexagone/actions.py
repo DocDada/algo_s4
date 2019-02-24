@@ -61,9 +61,9 @@ from hexa_modele import *
 import random
 import time
 from collections import deque
+from random import randint
 
-
-
+COLORS = ["Red", "Blue", "Grey", "Green"]
 
 def parcoursEnLargeur(modele, wrong_paths = False, true_path = True):
     """effectue un parcours en largeur du sommet de depart
@@ -104,9 +104,31 @@ def draw_path_start_end(modele, pred):
 
     return
 
-def compConnexes(modele):
+def compConnexes(modele, color = False, text = True):
     """Affiche pour chaque sommet le numéro de la composante auquelle
     il appartient"""
+    component = {}# vertex : number of connected component
+    number = 0
+
+    for v in modele.getListeSommets():
+        if v in component:
+            continue
+        n = [v]
+
+        while n:
+            vertexe = n.pop(0)
+            for s in modele.getVoisins(vertexe):
+                if s not in component:
+                    component[s] = number
+                    if color:
+                        s.change_couleur(COLORS[number])
+                    elif text:
+                        modele.addTexte(s, number)
+                    n.append(s)
+
+
+        number += 1
+
     pass
 
 
