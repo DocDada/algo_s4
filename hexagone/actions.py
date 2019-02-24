@@ -93,13 +93,10 @@ def parcoursEnLargeur(modele, wrong_paths = False, true_path = True):
 def draw_path_start_end(modele, pred):
     begin = modele.getDepart()
     v = modele.getObjectif()
-    #known = set([])
 
-    #while v != begin and (v not in known) and pred[v]:
-    while v != begin:
+    while v and v in pred and v != begin:
         in_neighb = pred[v]
         modele.addFleche(in_neighb, v, "Red")
-        #known.add(v)
         v = in_neighb
 
     return
@@ -161,14 +158,58 @@ def parcoursEnProfondeurEtape(modele, known, pred, s, wrong_path = False):
 
     return
 
-def bellmanFord(modele):
-    pass
+def bellmanFord(modele, true_path = True):
+    vertexes = modele.getListeSommets()
+    distances = {v:float('inf') for v in vertexes}
+    distances[modele.getDepart()] = 0
+    pred = {}
+
+    for i in range(len(vertexes)-1):
+        for v1 in modele.getListeSommets():
+            for v2 in modele.getVoisins(v1):
+                relacher_arc(modele, distances, pred, v1, v2)
+
+    if true_path:
+        draw_path_start_end(modele, pred)
+
+    return
    
 def relacher_arc(modele, distances, pred, v1, v2):
-    pass
+    if v2 not in distances or distances[v1] + modele.longueur(v1, v2) < distances[v2]:
+        distances[v2] = distances[v1] + modele.longueur(v1, v2)
+        pred[v2] = v1
+
+        return True
+    else:
+        return False
    
-def dijkstra(modele):
-    pass
+def dijkstra(modele, true_path = True):
+    begin = modele.getDepart()
+    distance = {begin:0}
+    pred = {}
+
+    fp = File_Priorite()
+    fp.ajouter(begin, distance[begin])
+
+    while fp:
+        current = fp.extraire_min()[0]
+
+        if current is modele.getObjectif():
+            fp = None
+            break
+
+        for n in modele.getVoisins(current):
+            if current in distance:
+                if relacher_arc(modele, distance, pred, current, n):
+                    if n in fp:
+                        fp.diminuer_valeur(n, distance[n])
+                    else:
+                        fp.ajouter(n, distance[n])
+
+    if true_path:
+        draw_path_start_end(modele, pred)
+
+    return
 
 
 def astar(modele):
