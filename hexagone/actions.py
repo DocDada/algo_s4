@@ -65,116 +65,86 @@ from collections import deque
 
 
 
-def parcoursEnLargeur(modele):
+def parcoursEnLargeur(modele, wrong_paths = False, true_path = True):
     """effectue un parcours en largeur du sommet de depart
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
     l'objectif en rouge"""
+    pred = {}# arrays of predecessors
+    begin = modele.getDepart()
+    distance = {begin:0}
+    fifo = [begin]
 
-    depart = modele.getDepart()
-    pred = {}
-    distance = {}
-    distance[depart] = 0
-    attente = [depart]
-    while attente:
-        courant = attente.pop(0)
-        for v in modele.getVoisins(courant):
-            if v not in distance:
-                distance[v] = distance[courant] + 1
-                pred[v] = courant
-                attente.append(v)
-                modele.addFleche(courant, v, "Black")
-                #modele.addTexte(v, distance[v])
+    while fifo:# till it's not empty
+        current = fifo.pop(0)# take out the first element
+        for n in modele.getVoisins(current):
+            if n not in distance:
+                distance[n] = distance[current] + 1
+                pred[n] = current
+                fifo.append(n)
+                if wrong_paths:
+                    modele.addFleche(current, n, "Black")
 
-    draw_path_start_end(modele, pred)
+    if true_path:
+        draw_path_start_end(modele, pred)
+
+    return
 
 
 def draw_path_start_end(modele, pred):
+    begin = modele.getDepart()
     v = modele.getObjectif()
-    while v in pred:
-        predecesseur = pred[v]
-        modele.addFleche(predecesseur, v, "Red")
-        if predecesseur == modele.getDepart():
-            break
-        v = predecesseur
+    #known = set([])
+
+    #while v != begin and (v not in known) and pred[v]:
+    while v != begin:
+        in_neighb = pred[v]
+        modele.addFleche(in_neighb, v, "Red")
+        #known.add(v)
+        v = in_neighb
+
+    return
 
 def compConnexes(modele):
     """Affiche pour chaque sommet le numéro de la composante auquelle
     il appartient"""
-
-    num = 0
-    sommets = modele.getListeSommets()
-    comp = {}
-    for s in sommets:
-        if s in comp:
-            continue
-        attente2 = [s]
-        while attente2:
-            v = attente2.pop()
-            for courant in modele.getVoisins(v):
-                if courant in comp:
-                    continue
-                comp[courant] = num
-                attente2.append(courant)
-                modele.addTexte(courant, num)
-        num += 1
+    pass
 
 
-def parcoursEnProfondeur(modele):
+def parcoursEnProfondeur(modele, wrong_path = True, true_path = True):
     """effectue un parcours en profondeur du sommet de depart
     affiche les prédécesseurs par des flèches grises et le chemin jusqu'à
     l'objectif en rouge
     Affiche le numero prefixe"""
-    depart = modele.getDepart()
-    sommets = modele.getListeSommets(depart)
+    known = set([])# vertexes that are known
     pred = {}
-    connu = set([])
-    for s in sommets:
-        if s not in connu:
-            parcoursEnProfondeurEtape(modele, connu, pred, s)
 
-    draw_path_start_end(modele, pred)
+    for v in modele.getListeSommets():
+        if v not in known:
+            parcoursEnProfondeurEtape(modele, known, pred, v, wrong_path)
 
-def parcoursEnProfondeurEtape(modele, connu, pred, s):
-    connu.add(s)
-    voisins = modele.getVoisins(s)
-    # On parcourt les voisins de s
-    for v in voisins:
-        # Si le sommet n'est pas connu
-        if v not in connu:
-            # Le predecesseur de v est s
+    if true_path:
+        draw_path_start_end(modele, pred)
+
+    return
+
+def parcoursEnProfondeurEtape(modele, known, pred, s, wrong_path = False):
+    known.add(s)
+
+    for v in modele.getVoisins(s):
+        if v not in known:
             pred[v] = s
-            modele.addFleche(pred[v], v, "Black")
-            parcoursEnProfondeurEtape(modele, connu, pred, v)
+            if wrong_path:
+                modele.addFleche(s, v, "Black")
+            parcoursEnProfondeurEtape(modele, known, pred, v, wrong_path)
+
+    return
 
 def bellmanFord(modele):
-    distances = {v:float("inf") for v in modele.getListeSommets()}
-    distances[modele.getDepart()] = 0
-    pred = {}
-
-    for i in range(len(modele.getListeSommets()) - 1):
-        boolean = False
-        for v1 in modele.getListeSommets():
-            for v2 in modele.getVoisins(v1):
-                res = relacher_arc(modele, distances, pred, v1, v2)
-                if res:
-                    boolean = True
-        if not boolean:
-            break
-
-    draw_path_start_end(modele, pred)
-
-
+    pass
+   
 def relacher_arc(modele, distances, pred, v1, v2):
-    """Relache l'arc de v1 à v2 et met à jour distances
-    et predecesseur"""
-    if distances[v1] + modele.longueur(v1, v2) < distances[v2]:
-        distances[v2] = distances[v1] + modele.longueur(v1, v2)
-        pred[v2] = v1
-        return True
-    else:
-        return False
-
-
+    pass
+   
 def dijkstra(modele):
     pass
 

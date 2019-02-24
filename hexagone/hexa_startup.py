@@ -8,9 +8,9 @@ class Root(tk.Tk):
         tk.Tk.__init__(self)
 
         # VALEURS A MODIFIER POUR LE NB DE CASES ET LA TAILLE DES HEXAGONES ####
-        nbcasesx = 45
-        nbcasesy = 20
-        unit = 8
+        nbcasesx = 25
+        nbcasesy = 10
+        unit = 10
         ########################################################################
 
         hauteur = (4*unit+1)*(nbcasesy+.5)
